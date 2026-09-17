@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Natalia — UX/UI Designer</title>
+
+<style>
+/* =======================================================================
+   PALETA WINDOWS XP (tema Luna)
+   Si quieres cambiar colores, cámbialos aquí y se actualizan en todo lado.
+   ======================================================================= */
+:root{
+  --xp-face:       #ece9d8;  /* gris beige de las ventanas */
+  --xp-white:      #ffffff;
+  --xp-shadow:     #aca899;  /* borde 3D oscuro */
+  --xp-dark:       #716f64;
+  --xp-text:       #1b1b18;
+  --xp-blue-deep:  #0831d9;
+  --xp-blue:       #0054e3;
+  --xp-blue-light: #3f8cf3;
+  --xp-panel:      #d6dff7;  /* paneles azules del panel lateral */
+  --xp-panel-text: #0c327d;
+  --xp-select:     #316ac5;  /* azul de selección */
+  --xp-green:      #3c8c25;  /* verde del botón Inicio */
+}
+
+*{ box-sizing:border-box; }
+
+html,body{ height:100%; }
+
+body{
+  margin:0;
+  font-family:Tahoma, Verdana, Geneva, sans-serif;
+  font-size:11px;
+  color:var(--xp-text);
+  background:#5a8fd6;
+  overflow-x:hidden;
+}
+
+/* =======================================================================
+   ESCRITORIO + FONDO DE PANTALLA "BLISS"
+   ======================================================================= */
+.desktop{
+  position:relative;
+  min-height:100vh;
+  padding:18px 18px 56px 18px;   /* espacio inferior para la barra de tareas */
+  display:flex;
+  gap:26px;
+  align-items:flex-start;
+}
+
+#wallpaper{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:-1;
+}
+
+/* ---------- Iconos del escritorio ---------- */
+.desktop-icons{
+  width:86px;
+  flex:0 0 86px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding-top:4px;
+}
+
+.desk-icon{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  width:100%;
+  padding:4px 2px 5px;
+  border:1px dotted transparent;
+  background:none;
+  font-family:inherit;
+  font-size:11px;
+  color:#fff;
+  text-align:center;
+  line-height:1.25;
+  cursor:pointer;
+  text-decoration:none;
+  text-shadow:0 1px 2px rgba(0,0,0,.75);
+}
+.desk-icon span{ padding:1px 3px; }
+.desk-icon:hover span{ background:rgba(49,106,197,.55); }
+.desk-icon:focus-visible{ border-color:#fff; outline:none; }
+.desk-icon:focus-visible span{ background:var(--xp-select); }
+.desk-icon svg{ filter:drop-shadow(1px 2px 2px rgba(0,0,0,.45)); }
+
+/* =======================================================================
+   VENTANA PRINCIPAL
+   ======================================================================= */
+.window{
+  flex:1 1 auto;
+  max-width:880px;
+  background:var(--xp-blue);
+  border-radius:8px 8px 0 0;
+  padding:0 3px 3px 3px;
+  box-shadow:3px 4px 14px rgba(0,0,0,.45);
+  animation:open-window .22s ease-out;
+}
+@keyframes open-window{
+  from{ transform:scale(.94); opacity:0; }
+  to{ transform:scale(1); opacity:1; }
+}
+
+.window.is-maximized{
+  max-width:none;
+  width:100%;
+}
+.window.is-minimized{ display:none; }
+
+/* ---------- Barra de título ---------- */
+.titlebar{
+  height:29px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:0 3px 0 5px;
+  border-radius:7px 7px 0 0;
+  background:linear-gradient(to bottom,
+    #0058ee 0%, #3f8cf3 7%, #0054e3 33%,
+    #0054e3 85%, #2b73de 92%, #0050ee 100%);
+}
+.titlebar .win-title{
+  flex:1;
+  margin:0;
+  font-family:"Trebuchet MS", Tahoma, sans-serif;
+  font-size:13px;
+  font-weight:700;
+  color:#fff;
+  text-shadow:1px 1px 2px rgba(0,0,0,.55);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.titlebar .win-title small{
+  font-weight:400;
+  font-size:13px;
+  opacity:.9;
+}
+
+.tb-btn{
+  width:21px; height:21px;
+  border:1px solid rgba(255,255,255,.85);
+  border-radius:3px;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  padding:0;
+  color:#fff;
+  background:linear-gradient(to bottom,#4a9bff 0%, #1a6fe0 45%, #0f5ecb 100%);
+  box-shadow:inset 0 0 2px rgba(255,255,255,.6);
+}
+.tb-btn:hover{ filter:brightness(1.15); }
+.tb-btn:focus-visible{ outline:2px dotted #fff; outline-offset:1px; }
+.tb-btn.close{ background:linear-gradient(to bottom,#f79075 0%, #e4573a 45%, #c33a22 100%); }
+.tb-btn svg{ display:block; }
+
+/* ---------- Barra de menú ---------- */
+.menubar{
+  display:flex;
+  gap:2px;
+  padding:2px 3px;
+  background:var(--xp-face);
+  border-bottom:1px solid #d9d4bf;
+}
+.menubar span{
+  padding:2px 7px;
+  border-radius:2px;
+  cursor:default;
+}
+.menubar span:hover{ background:var(--xp-select); color:#fff; }
+.menubar u{ text-decoration:underline; }
+
+/* ---------- Cuerpo de la ventana ---------- */
+.window-body{
+  display:flex;
+  background:var(--xp-white);
+  border:1px solid #d9d4bf;
+  border-top:none;
+  min-height:380px;
+}
+
+/* ---------- Panel lateral azul (estilo Explorador de XP) ---------- */
+.sidebar{
+  flex:0 0 190px;
+  padding:11px 9px;
+  display:flex;
+  flex-direction:column;
+  gap:11px;
+  background:linear-gradient(to bottom,#7ba7e7 0%, #6d8ede 60%, #6280d8 100%);
+  border-right:1px solid #c7d3ea;
+}
+
+.panel{
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.18);
+}
+.panel h2{
+  margin:0;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:700;
+  color:var(--xp-panel-text);
+  background:linear-gradient(to right,#f0f4fd 0%, #c3d3f7 100%);
+}
+.panel-body{
+  padding:8px 9px 10px;
+  background:linear-gradient(to bottom, rgba(255,255,255,.92), rgba(238,243,253,.92));
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+.panel-body a{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:var(--xp-panel-text);
+  text-decoration:none;
+}
+.panel-body a:hover{ color:#003399; text-decoration:underline; }
+.panel-body a:focus-visible{ outline:1px dotted var(--xp-panel-text); outline-offset:2px; }
+.panel-body p{ margin:0; color:#33393f; line-height:1.5; }
+
+/* ---------- Contenido ---------- */
+.content{
+  flex:1 1 auto;
+  padding:20px 24px 26px;
+  min-width:0;
+}
+
+.intro{
+  padding-bottom:14px;
+  margin-bottom:18px;
+  border-bottom:1px solid #dfe6f2;
+}
+.intro .name{
+  margin:0 0 2px;
+  font-family:"Trebuchet MS", Tahoma, sans-serif;
+  font-size:27px;
+  font-weight:700;
+  letter-spacing:-.2px;
+  color:#0c327d;
+}
+.intro .role{
+  margin:0 0 10px;
+  font-size:13px;
+  color:#4a5568;
+}
+.intro .pitch{
+  margin:0;
+  max-width:60ch;
+  font-size:12px;
+  line-height:1.65;
+  color:#2f3640;
+}
+
+.section-title{
+  margin:0 0 12px;
+  font-size:12px;
+  font-weight:700;
+  color:#0c327d;
+}
+
+/* ---------- Tarjeta de proyecto ---------- */
+.project{
+  display:flex;
+  gap:14px;
+  padding:13px;
+  margin-bottom:11px;
+  background:#fbfcfe;
+  border:1px solid #cfd9ea;
+  border-radius:3px;
+  text-decoration:none;
+  color:inherit;
+}
+.project:hover{
+  background:#eef4ff;
+  border-color:#7ba7e7;
+}
+.project:focus-visible{ outline:2px solid var(--xp-select); outline-offset:1px; }
+.project .thumb{
+  flex:0 0 52px;
+  height:52px;
+  display:grid;
+  place-items:center;
+  border-radius:3px;
+  background:linear-gradient(135deg,#dfe9fb,#bcd0f2);
+  border:1px solid #a9c0e8;
+}
+.project h3{
+  margin:0 0 4px;
+  font-size:13px;
+  font-weight:700;
+  color:#12356e;
+}
+.project p{
+  margin:0;
+  max-width:56ch;
+  font-size:11.5px;
+  line-height:1.6;
+  color:#3a424d;
+}
+.project .meta{
+  margin-top:7px;
+  font-size:11px;
+  color:#6b7280;
+}
+
+/* ---------- Barra de estado de la ventana ---------- */
+.statusbar{
+  display:flex;
+  gap:3px;
+  padding:3px;
+  background:var(--xp-face);
+  border:1px solid #d9d4bf;
+  border-top:none;
+}
+.statusbar span{
+  padding:2px 7px;
+  border:1px solid;
+  border-color:var(--xp-shadow) var(--xp-white) var(--xp-white) var(--xp-shadow);
+  color:#3a3a35;
+}
+.statusbar span:first-child{ flex:1; }
+
+/* =======================================================================
+   BARRA DE TAREAS + MENÚ INICIO
+   ======================================================================= */
+.taskbar{
+  position:fixed;
+  left:0; right:0; bottom:0;
+  height:32px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  z-index:50;
+  background:linear-gradient(to bottom,
+    #245edb 0%, #3f8cf3 5%, #1257ea 12%, #1257ea 88%, #1043c8 96%, #0f3bc0 100%);
+  border-top:1px solid #3f8cf3;
+  box-shadow:0 -1px 4px rgba(0,0,0,.35);
+}
+
+.start-btn{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  height:100%;
+  padding:0 20px 2px 9px;
+  border:none;
+  border-radius:0 8px 8px 0;
+  cursor:pointer;
+  font-family:"Trebuchet MS", Tahoma, sans-serif;
+  font-size:15px;
+  font-style:italic;
+  font-weight:700;
+  color:#fff;
+  text-shadow:1px 1px 2px rgba(0,0,0,.5);
+  background:linear-gradient(to bottom,#52b23c 0%, #3d9b2c 45%, #2c7a1f 100%);
+  box-shadow:inset -1px -1px 3px rgba(0,0,0,.3), inset 1px 1px 2px rgba(255,255,255,.4);
+}
+.start-btn:hover{ filter:brightness(1.1); }
+.start-btn[aria-expanded="true"]{ filter:brightness(.88); }
+.start-btn:focus-visible{ outline:2px dotted #fff; outline-offset:-4px; }
+
+.task-btn{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  max-width:190px;
+  height:23px;
+  padding:0 10px;
+  border:none;
+  border-radius:3px;
+  cursor:pointer;
+  font-family:inherit;
+  font-size:11px;
+  color:#fff;
+  background:linear-gradient(to bottom,#3d8cf0,#1a62d8);
+  box-shadow:inset 1px 1px 1px rgba(255,255,255,.35);
+  white-space:nowrap;
+  overflow:hidden;
+}
+.task-btn.active{ background:linear-gradient(to bottom,#1b5fd0,#2f7ae6); }
+.task-btn:focus-visible{ outline:1px dotted #fff; outline-offset:-3px; }
+
+.tray{
+  margin-left:auto;
+  height:100%;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 12px 0 11px;
+  color:#fff;
+  font-size:11px;
+  background:linear-gradient(to bottom,#1290e8 0%, #16a0e8 8%, #0d8ada 50%, #1290e8 100%);
+  border-left:1px solid #19a5e9;
+  box-shadow:inset 1px 0 2px rgba(0,0,0,.2);
+}
+
+/* ---------- Menú Inicio ---------- */
+.start-menu{
+  position:fixed;
+  left:0;
+  bottom:32px;
+  width:330px;
+  z-index:60;
+  border-radius:8px 8px 0 0;
+  overflow:hidden;
+  box-shadow:2px -2px 16px rgba(0,0,0,.5);
+  border:1px solid #0831d9;
+  border-bottom:none;
+}
+.start-menu[hidden]{ display:none; }
+
+.sm-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:7px 11px;
+  color:#fff;
+  background:linear-gradient(to bottom,#1668e3 0%, #2b83f0 40%, #1359c9 100%);
+  border-bottom:2px solid #f0b400;
+}
+.sm-avatar{
+  width:38px; height:38px;
+  border-radius:4px;
+  border:2px solid #fff;
+  background:linear-gradient(135deg,#ffd87a,#e88f3c);
+  display:grid;
+  place-items:center;
+  font-family:"Trebuchet MS", Tahoma, sans-serif;
+  font-size:17px;
+  font-weight:700;
+  color:#7a3c05;
+}
+.sm-header strong{
+  font-family:"Trebuchet MS", Tahoma, sans-serif;
+  font-size:14px;
+  text-shadow:1px 1px 2px rgba(0,0,0,.45);
+}
+
+.sm-columns{ display:flex; }
+.sm-col{ flex:1; padding:7px 5px; }
+.sm-col.left{ background:#fff; border-right:1px solid #c3d5ef; }
+.sm-col.right{ background:#d3e5fa; flex:0 0 138px; }
+
+.sm-item{
+  display:block;
+  padding:6px 8px;
+  border-radius:2px;
+  text-decoration:none;
+  color:#1b1b18;
+  font-size:11px;
+}
+.sm-col.right .sm-item{ font-weight:700; color:#0c327d; }
+.sm-item:hover{ background:var(--xp-select); color:#fff; }
+.sm-item:focus-visible{ background:var(--xp-select); color:#fff; outline:none; }
+.sm-item small{ display:block; font-weight:400; font-size:10px; color:#666; }
+.sm-item:hover small{ color:#dce8ff; }
+
+.sm-footer{
+  display:flex;
+  justify-content:flex-end;
+  gap:14px;
+  padding:6px 12px;
+  color:#fff;
+  background:linear-gradient(to bottom,#2b83f0,#1359c9);
+}
+.sm-footer button{
+  display:flex; align-items:center; gap:6px;
+  background:none; border:none; cursor:pointer;
+  font-family:inherit; font-size:11px; color:#fff;
+  text-shadow:1px 1px 1px rgba(0,0,0,.4);
+}
+.sm-footer button:hover{ text-decoration:underline; }
+
+/* =======================================================================
+   CUADRO DE DIÁLOGO (aparece al pulsar la X)
+   ======================================================================= */
+.overlay{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:grid;
+  place-items:center;
+  background:rgba(0,0,0,.25);
+}
+.overlay[hidden]{ display:none; }
+
+.dialog{
+  width:330px;
+  background:var(--xp-blue);
+  border-radius:8px 8px 0 0;
+  padding:0 3px 3px;
+  box-shadow:4px 5px 20px rgba(0,0,0,.5);
+}
+.dialog .titlebar{ height:26px; }
+.dialog-body{
+  display:flex;
+  gap:13px;
+  padding:19px 17px 14px;
+  background:var(--xp-face);
+  border:1px solid #d9d4bf;
+  border-top:none;
+}
+.dialog-body p{ margin:0; font-size:11px; line-height:1.55; }
+.dialog-actions{
+  display:flex;
+  justify-content:center;
+  padding:0 0 15px;
+  background:var(--xp-face);
+  border:1px solid #d9d4bf;
+  border-top:none;
+}
+.xp-button{
+  min-width:76px;
+  padding:4px 12px;
+  font-family:inherit;
+  font-size:11px;
+  color:var(--xp-text);
+  background:linear-gradient(to bottom,#fdfdfd 0%, #f2f1ea 45%, #e3e0d2 100%);
+  border:1px solid #8e8b77;
+  border-radius:3px;
+  cursor:pointer;
+  box-shadow:inset 0 0 2px rgba(255,255,255,.9);
+}
+.xp-button:hover{ border-color:#f0a807; }
+.xp-button:active{ background:linear-gradient(to bottom,#dedbcd,#f1efe6); }
+.xp-button:focus-visible{ outline:1px dotted #333; outline-offset:2px; }
+
+/* =======================================================================
+   MÓVIL
+   ======================================================================= */
+@media (max-width:760px){
+  .desktop{ padding:0 0 40px; gap:0; }
+  .desktop-icons{ display:none; }
+  .window{ max-width:none; border-radius:0; padding:0; }
+  .titlebar{ border-radius:0; }
+  .window-body{ flex-direction:column; min-height:0; }
+  .sidebar{ flex:none; border-right:none; border-top:1px solid #c7d3ea; order:2; }
+  .content{ padding:17px 16px 22px; order:1; }
+  .intro .name{ font-size:22px; }
+  .menubar{ display:none; }
+  .start-menu{ width:100%; }
+  .task-btn{ max-width:130px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .window{ animation:none; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ======================= FONDO DE PANTALLA ======================= -->
+<svg id="wallpaper" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#2f74cf"/>
+      <stop offset="55%" stop-color="#63a6e6"/>
+      <stop offset="100%" stop-color="#aed6f2"/>
+    </linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#8dc44e"/>
+      <stop offset="100%" stop-color="#5a9130"/>
+    </linearGradient>
+    <linearGradient id="hill2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#a8d466"/>
+      <stop offset="100%" stop-color="#76ad3c"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-80%" width="160%" height="260%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <g fill="#ffffff" opacity=".6" filter="url(#soft)">
+    <ellipse cx="140" cy="105" rx="78" ry="17"/>
+    <ellipse cx="186" cy="92"  rx="40" ry="13"/>
+    <ellipse cx="620" cy="72"  rx="92" ry="16"/>
+    <ellipse cx="572" cy="62"  rx="44" ry="12"/>
+    <ellipse cx="370" cy="145" rx="60" ry="10" opacity=".6"/>
+  </g>
+  <path d="M0 330 C 190 250, 420 300, 800 235 L800 500 L0 500 Z" fill="url(#hill2)"/>
+  <path d="M0 390 C 230 305, 520 372, 800 320 L800 500 L0 500 Z" fill="url(#hill)"/>
+</svg>
+
+<div class="desktop">
+
+  <!-- ======================= ICONOS DEL ESCRITORIO ======================= -->
+  <nav class="desktop-icons" aria-label="Desktop shortcuts">
+    <a class="desk-icon" href="#work">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+        <path d="M2 8h11l3 3h16v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8z" fill="#f0b94a"/>
+        <path d="M2 13h30v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V13z" fill="#ffd76e"/>
+      </svg>
+      <span>Selected Work</span>
+    </a>
+
+    <a class="desk-icon" href="#about">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+        <path d="M6 3h15l7 7v21H6z" fill="#fff" stroke="#9aa0a6"/>
+        <path d="M21 3l7 7h-7z" fill="#dfe4ea" stroke="#9aa0a6"/>
+        <g stroke="#7f8c98" stroke-width="1.4">
+          <path d="M10 15h14M10 19h14M10 23h9"/>
+        </g>
+      </svg>
+      <span>About Me</span>
+    </a>
+
+    <a class="desk-icon" href="#contact">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+        <rect x="3" y="8" width="28" height="19" rx="2" fill="#f4f6f8" stroke="#8b949e"/>
+        <path d="M3 10l14 10 14-10" fill="none" stroke="#5c6b7a" stroke-width="1.6"/>
+      </svg>
+      <span>Contact</span>
+    </a>
+
+    <!-- ✏️ Cuando tengas tu CV en PDF, sube el archivo al repositorio y
+         cambia "#" por el nombre del archivo, por ejemplo: cv-natalia.pdf -->
+    <a class="desk-icon" href="#">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+        <path d="M6 3h15l7 7v21H6z" fill="#fff" stroke="#9aa0a6"/>
+        <path d="M21 3l7 7h-7z" fill="#dfe4ea" stroke="#9aa0a6"/>
+        <rect x="6" y="18" width="18" height="9" rx="1.5" fill="#c9372c"/>
+        <text x="15" y="25" font-family="Tahoma" font-size="7" fill="#fff" text-anchor="middle">PDF</text>
+      </svg>
+      <span>Résumé</span>
+    </a>
+  </nav>
+
+  <!-- ======================= VENTANA PRINCIPAL ======================= -->
+  <div class="window" id="main-window">
+
+    <div class="titlebar">
+      <svg width="16" height="16" viewBox="0 0 34 34" aria-hidden="true">
+        <path d="M2 8h11l3 3h16v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8z" fill="#f0b94a"/>
+        <path d="M2 13h30v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V13z" fill="#ffd76e"/>
+      </svg>
+      <div class="win-title">Natalia Martínez <small>— UX/UI Designer</small></div>
+
+      <button class="tb-btn" id="btn-minimize" title="Minimize" aria-label="Minimize window">
+        <svg width="9" height="9" viewBox="0 0 9 9"><rect x="1" y="6" width="7" height="2" fill="#fff"/></svg>
+      </button>
+      <button class="tb-btn" id="btn-maximize" title="Maximize" aria-label="Maximize window">
+        <svg width="9" height="9" viewBox="0 0 9 9"><rect x="1" y="1" width="7" height="7" fill="none" stroke="#fff" stroke-width="1.6"/></svg>
+      </button>
+      <button class="tb-btn close" id="btn-close" title="Close" aria-label="Close window">
+        <svg width="9" height="9" viewBox="0 0 9 9"><path d="M1.5 1.5l6 6M7.5 1.5l-6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <div class="menubar">
+      <span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span>
+      <span>F<u>a</u>vorites</span><span><u>T</u>ools</span><span><u>H</u>elp</span>
+    </div>
+
+    <div class="window-body">
+
+      <!-- ---------- Panel lateral azul ---------- -->
+      <aside class="sidebar">
+        <section class="panel" id="about">
+          <h2>About Me</h2>
+          <div class="panel-body">
+            <!-- ✏️ Escribe aquí tu presentación en 2 o 3 líneas -->
+            <p>
+              I design digital products that people can
+              actually figure out on the first try.
+              Currently based in Barranquilla.
+            </p>
+          </div>
+        </section>
+
+        <section class="panel" id="contact">
+          <h2>Contact</h2>
+          <div class="panel-body">
+            <!-- ✏️ Cambia el correo y los enlaces por los tuyos -->
+            <a href="mailto:hola@tucorreo.com">
+              <svg width="15" height="15" viewBox="0 0 34 34" aria-hidden="true">
+                <rect x="3" y="8" width="28" height="19" rx="2" fill="#f4f6f8" stroke="#8b949e"/>
+                <path d="M3 10l14 10 14-10" fill="none" stroke="#5c6b7a" stroke-width="1.8"/>
+              </svg>
+              Email me
+            </a>
+            <a href="https://www.linkedin.com/in/tu-usuario" target="_blank" rel="noopener">
+              <svg width="15" height="15" viewBox="0 0 34 34" aria-hidden="true">
+                <rect x="3" y="3" width="28" height="28" rx="4" fill="#0a66c2"/>
+                <text x="17" y="23" font-family="Tahoma" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">in</text>
+              </svg>
+              LinkedIn
+            </a>
+            <a href="https://github.com/tu-usuario" target="_blank" rel="noopener">
+              <svg width="15" height="15" viewBox="0 0 34 34" aria-hidden="true">
+                <circle cx="17" cy="17" r="14" fill="#24292f"/>
+                <text x="17" y="23" font-family="Tahoma" font-size="14" font-weight="bold" fill="#fff" text-anchor="middle">G</text>
+              </svg>
+              GitHub
+            </a>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Details</h2>
+          <div class="panel-body">
+            <p>1 project<br>Last updated September 2026</p>
+          </div>
+        </section>
+      </aside>
+
+      <!-- ---------- Contenido principal ---------- -->
+      <main class="content">
+
+        <div class="intro">
+          <h1 class="name">Natalia Martínez</h1>
+          <p class="role">UX/UI Designer</p>
+          <!-- ✏️ Una frase corta que diga en qué eres buena -->
+          <p class="pitch">
+            I work on interfaces for products where people arrive
+            with a problem and little patience: maintenance requests,
+            support flows, first-time setups.
+          </p>
+        </div>
+
+        <h2 class="section-title" id="work">Selected Work</h2>
+
+        <!-- ▼▼▼ PROYECTO ▼▼▼
+             Para añadir otro proyecto, copia todo el bloque <a class="project">
+             hasta su </a> y pégalo justo debajo, cambiando el texto. -->
+        <a class="project" href="#">
+          <div class="thumb" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 34 34">
+              <rect x="4" y="6" width="26" height="19" rx="2" fill="#fff" stroke="#6b8fc7"/>
+              <rect x="4" y="6" width="26" height="4" fill="#6b8fc7"/>
+              <path d="M9 19l5-5 4 4 4-6 4 7z" fill="#a9c0e8"/>
+            </svg>
+          </div>
+          <div>
+            <h3>FixAI</h3>
+            <p>
+              An AI-powered maintenance assistant designed to help tenants
+              troubleshoot simple problems before requesting a technician.
+            </p>
+            <p class="meta">Case study coming soon</p>
+          </div>
+        </a>
+        <!-- ▲▲▲ FIN DEL PROYECTO ▲▲▲ -->
+
+      </main>
+    </div>
+
+    <div class="statusbar">
+      <span>1 object</span>
+      <span>Portfolio</span>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= DIÁLOGO AL CERRAR ======================= -->
+<div class="overlay" id="close-dialog" hidden>
+  <div class="dialog" role="alertdialog" aria-labelledby="dlg-title" aria-describedby="dlg-text">
+    <div class="titlebar">
+      <div class="win-title" id="dlg-title">Portfolio</div>
+    </div>
+    <div class="dialog-body">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="14" fill="#d13438"/>
+        <path d="M11 11l10 10M21 11L11 21" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <p id="dlg-text">This window can't be closed yet.<br>There's still work to look at.</p>
+    </div>
+    <div class="dialog-actions">
+      <button class="xp-button" id="dlg-ok" autofocus>OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= MENÚ INICIO ======================= -->
+<div class="start-menu" id="start-menu" hidden>
+  <div class="sm-header">
+    <div class="sm-avatar" aria-hidden="true">N</div>
+    <strong>Natalia Martínez</strong>
+  </div>
+  <div class="sm-columns">
+    <div class="sm-col left">
+      <a class="sm-item" href="#work">Selected Work<small>Projects and case studies</small></a>
+      <a class="sm-item" href="#about">About Me<small>How I work</small></a>
+      <!-- ✏️ Cambia "#" por el nombre de tu CV, por ejemplo: cv-natalia.pdf -->
+      <a class="sm-item" href="#">Résumé<small>PDF, one page</small></a>
+    </div>
+    <div class="sm-col right">
+      <!-- ✏️ Mismos enlaces que en el panel de contacto -->
+      <a class="sm-item" href="mailto:hola@tucorreo.com">Email</a>
+      <a class="sm-item" href="https://www.linkedin.com/in/tu-usuario" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="sm-item" href="https://github.com/tu-usuario" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+  <div class="sm-footer">
+    <button type="button" id="sm-close">Close menu</button>
+  </div>
+</div>
+
+<!-- ======================= BARRA DE TAREAS ======================= -->
+<div class="taskbar">
+  <button class="start-btn" id="start-btn" aria-expanded="false" aria-controls="start-menu">
+    <svg width="19" height="19" viewBox="0 0 22 22" aria-hidden="true">
+      <g transform="skewY(-8) translate(0,2)">
+        <rect x="2"  y="3"  width="8" height="7" rx="1.5" fill="#f04b44"/>
+        <rect x="11" y="3"  width="8" height="7" rx="1.5" fill="#8fc73e"/>
+        <rect x="2"  y="11" width="8" height="7" rx="1.5" fill="#33a7ea"/>
+        <rect x="11" y="11" width="8" height="7" rx="1.5" fill="#fbc02d"/>
+      </g>
+    </svg>
+    start
+  </button>
+
+  <button class="task-btn active" id="task-btn">
+    <svg width="14" height="14" viewBox="0 0 34 34" aria-hidden="true">
+      <path d="M2 8h11l3 3h16v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8z" fill="#f0b94a"/>
+      <path d="M2 13h30v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V13z" fill="#ffd76e"/>
+    </svg>
+    Natalia Martínez
+  </button>
+
+  <div class="tray"><span id="clock">12:00 PM</span></div>
+</div>
+
+<script>
+/* ---------- Reloj de la barra de tareas ---------- */
+function tick(){
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+}
+tick();
+setInterval(tick, 10000);
+
+/* ---------- Botones de la ventana ---------- */
+var win      = document.getElementById('main-window');
+var taskBtn  = document.getElementById('task-btn');
+var dialog   = document.getElementById('close-dialog');
+
+document.getElementById('btn-maximize').addEventListener('click', function(){
+  win.classList.toggle('is-maximized');
+});
+
+document.getElementById('btn-minimize').addEventListener('click', function(){
+  win.classList.add('is-minimized');
+  taskBtn.classList.remove('active');
+});
+
+taskBtn.addEventListener('click', function(){
+  win.classList.remove('is-minimized');
+  taskBtn.classList.add('active');
+});
+
+document.getElementById('btn-close').addEventListener('click', function(){
+  dialog.hidden = false;
+  document.getElementById('dlg-ok').focus();
+});
+
+document.getElementById('dlg-ok').addEventListener('click', function(){
+  dialog.hidden = true;
+  document.getElementById('btn-close').focus();
+});
+
+/* ---------- Menú Inicio ---------- */
+var startBtn  = document.getElementById('start-btn');
+var startMenu = document.getElementById('start-menu');
+
+function setMenu(open){
+  startMenu.hidden = !open;
+  startBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+
+startBtn.addEventListener('click', function(e){
+  e.stopPropagation();
+  setMenu(startMenu.hidden);
+});
+
+document.getElementById('sm-close').addEventListener('click', function(){
+  setMenu(false);
+  startBtn.focus();
+});
+
+startMenu.addEventListener('click', function(e){
+  if (e.target.closest('a')) setMenu(false);
+});
+
+document.addEventListener('click', function(e){
+  if (!startMenu.hidden && !startMenu.contains(e.target)) setMenu(false);
+});
+
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape'){
+    setMenu(false);
+    dialog.hidden = true;
+  }
+});
+</script>
+
+</body>
+</html>
